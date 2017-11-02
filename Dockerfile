@@ -11,7 +11,7 @@ RUN apt-get update -qq
 #RUN dpkg --add-architecture i386
 #RUN apt-get update -qq
 #RUN DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-8-jdk libc6:i386 libstdc++6:i386 libgcc1:i386 libncurses5:i386 libz1:i386
-RUN apt-get install -y openjdk-8-jdk wget expect git curl
+RUN apt-get install -y openjdk-8-jdk wget expect git curl unzip
 
 # ------------------------------------------------------
 # --- Download Android SDK tools into $ANDROID_SDK_HOME
@@ -28,6 +28,13 @@ RUN cd /opt && rm -f android-sdk.tgz
 
 ENV PATH ${PATH}:${ANDROID_SDK_HOME}/tools:${ANDROID_SDK_HOME}/platform-tools:/opt/tools
 
+
+
+# Workaround
+RUN cd /opt && wget -q https://dl.google.com/android/repository/platform-tools_r26.0.2-windows.zip
+RUN cd /opt/android-sdk-linux && unzip /opt/platform-tools_r26.0.2-windows.zip
+
+
 # ------------------------------------------------------
 # --- Install Android SDKs and other build packages
 
@@ -38,7 +45,7 @@ ENV PATH ${PATH}:${ANDROID_SDK_HOME}/tools:${ANDROID_SDK_HOME}/platform-tools:/o
 # (!!!) Only install one package at a time, as "echo y" will only work for one license!
 #       If you don't do it this way you might get "Unknown response" in the logs,
 #         but the android SDK tool **won't** fail, it'll just **NOT** install the package.
-RUN echo y | android update sdk --no-ui --all --filter platform-tools | grep 'package installed'
+# RUN echo y | android update sdk --no-ui --all --filter platform-tools | grep 'package installed'
 
 # SDKs
 # Please keep these in descending order!
@@ -46,7 +53,7 @@ RUN echo y | android update sdk --no-ui --all --filter android-23 | grep 'packag
 
 # build tools
 # Please keep these in descending order!
-RUN echo y | android update sdk --no-ui --all --filter build-tools-20.0.0 | grep 'package installed'
+RUN echo y | android update sdk --no-ui --all --filter build-tools-26.0.1 | grep 'package installed'
 
 # Extras
 RUN echo y | android update sdk --no-ui --all --filter extra-android-m2repository | grep 'package installed'
